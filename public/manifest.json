@@ -1,0 +1,23 @@
+{
+    "name": "Chicoutimi SnowSim",
+    "short_name": "SnowSim",
+    "description": "Interactive 3D simulation of road snow drift and vegetation barrier effectiveness for Chicoutimi winter conditions",
+    "start_url": "/snowsim/",
+    "scope": "/snowsim/",
+    "display": "standalone",
+    "orientation": "landscape",
+    "background_color": "#020617",
+    "theme_color": "#0f172a",
+    "icons": [
+        {
+            "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>❄️</text></svg>",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": [
+        "education",
+        "utilities"
+    ]
+}
