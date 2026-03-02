@@ -1,5 +1,0 @@
-{
-  "name": "Chicoutimi SnowSim",
-  "description": "A 3D simulation system for road snow and wind, evaluating the effectiveness of vegetation barriers in Chicoutimi.",
-  "requestFramePermissions": []
-}

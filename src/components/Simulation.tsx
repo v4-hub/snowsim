@@ -10,7 +10,7 @@ import * as THREE from 'three';
 function CameraController() {
   const cameraView = useSimulationStore((state) => state.cameraView);
   const { camera } = useThree();
-  const controlsRef = useRef<any>(null);
+  const controlsRef = useRef<React.ComponentRef<typeof OrbitControls>>(null);
 
   useEffect(() => {
     if (cameraView === 'birdseye') {
@@ -43,7 +43,7 @@ export default function Simulation() {
       <Canvas shadows camera={{ position: [0, 40, 40], fov: 45 }}>
         <color attach="background" args={['#94a3b8']} />
         <fog attach="fog" args={['#94a3b8', 10, 80]} />
-        
+
         <ambientLight intensity={0.4} />
         <directionalLight
           castShadow
@@ -57,7 +57,7 @@ export default function Simulation() {
         <Road />
         <Vegetation />
         <SnowParticles />
-        
+
         <CameraController />
       </Canvas>
     </div>

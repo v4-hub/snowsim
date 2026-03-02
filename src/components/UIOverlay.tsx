@@ -55,7 +55,7 @@ export default function UIOverlay() {
         <h2 className="text-sm font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-2">
           <Wind className="w-4 h-4" /> EVT: Wind Event Modeling
         </h2>
-        
+
         <div className="space-y-2">
           <div className="flex justify-between text-xs">
             <label>Mean Wind Speed (U10)</label>
@@ -136,7 +136,7 @@ export default function UIOverlay() {
         <h2 className="text-sm font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-2">
           <Mountain className="w-4 h-4" /> Site Conditions
         </h2>
-        
+
         <div className="space-y-2">
           <div className="flex justify-between text-xs">
             <label>Terrain Roughness (z0)</label>
@@ -192,11 +192,10 @@ export default function UIOverlay() {
             <button
               key={view}
               onClick={() => setCameraView(view)}
-              className={`py-2 px-1 text-xs rounded-md transition-colors ${
-                cameraView === view
+              className={`py-2 px-1 text-xs rounded-md transition-colors ${cameraView === view
                   ? 'bg-blue-600 text-white font-medium shadow-inner'
                   : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
-              }`}
+                }`}
             >
               {view.charAt(0).toUpperCase() + view.slice(1)}
             </button>
@@ -212,10 +211,10 @@ export default function UIOverlay() {
 
         {/* Left Side */}
         <BarrierControlPanel side="left" label="West Side (Upwind)" config={barriers.left} update={updateBarrier} />
-        
+
         {/* Right Side */}
         <BarrierControlPanel side="right" label="East Side (Downwind)" config={barriers.right} update={updateBarrier} />
-        
+
         {/* Median */}
         <BarrierControlPanel side="median" label="Road Median" config={barriers.median} update={updateBarrier} isMedian />
 
@@ -224,7 +223,15 @@ export default function UIOverlay() {
   );
 }
 
-function BarrierControlPanel({ side, label, config, update, isMedian = false }: any) {
+interface BarrierControlPanelProps {
+  side: 'left' | 'right' | 'median';
+  label: string;
+  config: { enabled: boolean; distance: number; height: number; density: number; type: string };
+  update: (side: 'left' | 'right' | 'median', config: Record<string, unknown>) => void;
+  isMedian?: boolean;
+}
+
+function BarrierControlPanel({ side, label, config, update, isMedian = false }: BarrierControlPanelProps) {
   return (
     <div className="bg-slate-800/50 rounded-lg p-3 border border-slate-700/50 space-y-3">
       <div className="flex items-center justify-between">
