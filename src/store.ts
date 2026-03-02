@@ -12,6 +12,8 @@ interface SimulationMetrics {
   snowOnRoad: number;
   forwardVisibility: number;
   reverseVisibility: number;
+  baselineForwardVisibility: number; // Estimated visibility without barriers
+  baselineReverseVisibility: number; // Estimated visibility without barriers
   currentWindSpeed: number; // Fluctuating wind speed
 }
 
@@ -22,22 +24,22 @@ interface SimulationState {
   terrainRoughness: number; // z0 in meters (Logarithmic wind profile)
   turbulenceIntensity: number; // Percentage (0-50%)
   snowIntensity: number;
-  
+
   // View
   cameraView: 'driver' | 'birdseye' | 'side';
-  
+
   // SIM: Barrier Configuration
   barriers: {
     left: BarrierConfig;
     right: BarrierConfig;
     median: BarrierConfig;
   };
-  
+
   // EDP: Engineering Demand Parameters (Metrics)
   metrics: SimulationMetrics;
   leftPanelOpen: boolean;
   rightPanelOpen: boolean;
-  
+
   // Actions
   setWindSpeed: (speed: number) => void;
   setWindDirection: (dir: number) => void;
@@ -53,7 +55,7 @@ interface SimulationState {
 
 export const useSimulationStore = create<SimulationState>((set) => ({
   windSpeed: 15, // m/s
-  windDirection: 0, 
+  windDirection: 0,
   terrainRoughness: 0.03, // Open terrain default
   turbulenceIntensity: 15, // 15% default TI
   snowIntensity: 50000,
@@ -67,6 +69,8 @@ export const useSimulationStore = create<SimulationState>((set) => ({
     snowOnRoad: 0,
     forwardVisibility: 100,
     reverseVisibility: 100,
+    baselineForwardVisibility: 100,
+    baselineReverseVisibility: 100,
     currentWindSpeed: 15,
   },
   leftPanelOpen: true,

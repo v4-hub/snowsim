@@ -12,12 +12,12 @@ export function SnowParticles() {
     const count = snowIntensity;
     const positions = new Float32Array(count * 3);
     const velocities = new Float32Array(count * 3);
-    
+
     for (let i = 0; i < count; i++) {
       positions[i * 3] = (Math.random() - 0.5) * 100; // x: -50 to 50
       positions[i * 3 + 1] = Math.random() * 30;      // y: 0 to 30
       positions[i * 3 + 2] = (Math.random() - 0.5) * 100; // z: -50 to 50
-      
+
       velocities[i * 3] = 0;
       velocities[i * 3 + 1] = -1 - Math.random(); // falling speed
       velocities[i * 3 + 2] = 0;
@@ -54,6 +54,7 @@ export function SnowParticles() {
     let snowOnRoadCount = 0;
     let forwardBlockers = 0;
     let reverseBlockers = 0;
+    let barrierInterceptedDensitySum = 0; // Sum of densities affecting intercepted particles
 
     const zRef = 10; // 10m reference height for wind speed
 
@@ -93,6 +94,8 @@ export function SnowParticles() {
       else if (bMed && Math.abs(px - bMed.x) < bMed.w && py < bMed.h) hitDensity = bMed.d;
 
       if (hitDensity > 0) {
+        // Track intercepted particles for baseline estimation
+        barrierInterceptedDensitySum += hitDensity;
         // Reduce velocity based on density (Wind Shadow Effect)
         vx *= (1 - hitDensity);
         vz *= (1 - hitDensity);
@@ -122,7 +125,7 @@ export function SnowParticles() {
       if (py < 0 || px < -50 || px > 50 || pz < -50 || pz > 50) {
         // Spawn upwind or top
         const spawnTop = Math.random() > 0.5;
-        
+
         if (spawnTop) {
           py = 30;
           px = (Math.random() - 0.5) * 100;
@@ -130,14 +133,14 @@ export function SnowParticles() {
         } else {
           py = Math.random() * 30;
           if (Math.abs(baseWindX) > Math.abs(baseWindZ)) {
-             px = baseWindX > 0 ? -50 : 50;
-             pz = (Math.random() - 0.5) * 100;
+            px = baseWindX > 0 ? -50 : 50;
+            pz = (Math.random() - 0.5) * 100;
           } else {
-             pz = baseWindZ > 0 ? -50 : 50;
-             px = (Math.random() - 0.5) * 100;
+            pz = baseWindZ > 0 ? -50 : 50;
+            px = (Math.random() - 0.5) * 100;
           }
         }
-        
+
         // Reset velocity
         vx = baseWindX * 0.5;
         vz = baseWindZ * 0.5;
@@ -161,16 +164,25 @@ export function SnowParticles() {
     // Throttle store updates to avoid React re-render lag
     if (Math.floor(timeRef.current * 10) % 5 === 0) { // Update ~2 times per second
       // Calculate visibility percentage (0 to 100).
-      // Assuming 1000 blockers in the view frustum means 0% visibility.
       // We scale this based on snowIntensity to make it relative.
-      const maxBlockers = snowIntensity * 0.02; 
+      const maxBlockers = snowIntensity * 0.02;
       const fVis = Math.max(0, 100 - (forwardBlockers / maxBlockers) * 100);
       const rVis = Math.max(0, 100 - (reverseBlockers / maxBlockers) * 100);
-      
+
+      // Estimate baseline (no-barrier) visibility
+      // Particles intercepted by barriers would have continued to the road at wind speed.
+      // A fraction of those would end up in the visibility frustum.
+      const windAngleFactor = Math.abs(Math.cos(windRad)); // How much wind blows toward road
+      const extraBlockers = barrierInterceptedDensitySum * 0.35 * Math.max(0.2, windAngleFactor);
+      const bfVis = Math.max(0, 100 - ((forwardBlockers + extraBlockers * 0.55) / maxBlockers) * 100);
+      const brVis = Math.max(0, 100 - ((reverseBlockers + extraBlockers * 0.45) / maxBlockers) * 100);
+
       useSimulationStore.getState().setMetrics({
         snowOnRoad: snowOnRoadCount,
         forwardVisibility: Math.round(fVis),
         reverseVisibility: Math.round(rVis),
+        baselineForwardVisibility: Math.round(bfVis),
+        baselineReverseVisibility: Math.round(brVis),
         currentWindSpeed: Number(currentWindRef.current.toFixed(1)),
       });
     }
