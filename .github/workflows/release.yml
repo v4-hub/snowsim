@@ -1,0 +1,42 @@
+name: Release Desktop Apps
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-mac:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run build:electron
+      - run: npx electron-builder --mac --publish never
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: release/*.dmg
+          draft: false
+
+  build-win:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run build:electron
+      - run: npx electron-builder --win --publish never
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: release/*.exe
+          draft: false

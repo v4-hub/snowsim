@@ -426,20 +426,23 @@
             <h2>Contents</h2>
             <div class="toc-grid">
                 <a href="#q1"><span class="num">01</span> Wind model used</a>
-                <a href="#q9"><span class="num">09</span> Terrain roughness values</a>
-                <a href="#q2"><span class="num">02</span> Turbulence simulation</a>
                 <a href="#q10"><span class="num">10</span> Particle count / performance</a>
-                <a href="#q3"><span class="num">03</span> How barriers affect snow</a>
+                <a href="#q2"><span class="num">02</span> Turbulence simulation</a>
                 <a href="#q11"><span class="num">11</span> Optimal barrier setup</a>
-                <a href="#q4"><span class="num">04</span> Density parameter meaning</a>
+                <a href="#q3"><span class="num">03</span> How barriers affect snow</a>
                 <a href="#q12"><span class="num">12</span> Effect of wind direction</a>
-                <a href="#q5"><span class="num">05</span> Tree height effect</a>
+                <a href="#q4"><span class="num">04</span> Density parameter meaning</a>
                 <a href="#q13"><span class="num">13</span> Why not CFD?</a>
-                <a href="#q6"><span class="num">06</span> Visibility calculation</a>
+                <a href="#q5"><span class="num">05</span> Tree height effect</a>
                 <a href="#q14"><span class="num">14</span> Known limitations</a>
-                <a href="#q7"><span class="num">07</span> No-barrier baseline curve</a>
+                <a href="#q6"><span class="num">06</span> Visibility calculation</a>
                 <a href="#q15"><span class="num">15</span> Practical applications</a>
+                <a href="#q7"><span class="num">07</span> Barrier protection display</a>
+                <a href="#q16"><span class="num">16</span> Conifer tree model</a>
                 <a href="#q8"><span class="num">08</span> Chicoutimi realism</a>
+                <a href="#q17"><span class="num">17</span> Snow accumulation</a>
+                <a href="#q9"><span class="num">09</span> Terrain roughness values</a>
+                <a href="#q18"><span class="num">18</span> Desktop app install</a>
             </div>
         </nav>
 
@@ -466,7 +469,8 @@
                     <code>z_ref = 10 m</code> is the standard meteorological reference height, and <code>U_ref</code> is
                     the mean wind speed at that height. This means wind is slower near the ground (where friction
                     dominates) and faster at higher altitudes — which is critical for modeling how snow particles behave
-                    at different heights.</p>
+                    at different heights.
+                </p>
                 <p>You can see this profile visualized in real-time in the right panel's <strong>Log Wind
                         Profile</strong> chart.</p>
             </div>
@@ -510,7 +514,8 @@
                     its position, width, and height), its <strong>horizontal velocity is reduced</strong> by a factor of
                     <code>(1 − density)</code>. This models the <strong>Wind Shadow Effect</strong> — vegetation
                     disrupts airflow, causing wind-borne snow particles to decelerate and settle near the barrier rather
-                    than being carried onto the road.</p>
+                    than being carried onto the road.
+                </p>
                 <p>Additionally, particles passing through dense barriers fall more slowly (their downward velocity is
                     capped), simulating how foliage and branches create air resistance that slows particles in all
                     directions.</p>
@@ -555,7 +560,8 @@
                 <p>This is why short shrubs (2–3 m) have limited effect on snow driven aloft during strong winds, while
                     <strong>8–10 m conifers can intercept snow across a much larger cross-section</strong> of the wind
                     flow. In the simulation, increasing tree height from 3 m to 10 m produces a visible increase in the
-                    protected zone.</p>
+                    protected zone.
+                </p>
                 <p>In practice, the protected downwind distance of a shelterbelt is approximately <strong>10–15× the
                         barrier height</strong>, which is why the "Distance from road" parameter also matters — the
                     barrier must be positioned so that its wind shadow covers the road surface.</p>
@@ -597,21 +603,27 @@
 
         <details class="qa" id="q7">
             <summary>
-                What does the red dashed "No Barriers" baseline curve represent?
+                How is the barrier protection displayed in the monitor panel?
                 <span class="num">Q07</span>
             </summary>
             <div class="answer">
-                <p><span class="tag tag-metric">Metric</span> The red dashed line estimates <strong>what visibility
-                        would be if all vegetation barriers were removed</strong>. It provides a real-time comparison to
-                    quantify how much the current barrier configuration improves driving conditions.</p>
-                <p>The estimation works by tracking how many particles are <strong>currently being intercepted by
-                        barriers</strong> in each frame and how much they are slowed. Without barriers, these particles
-                    would have continued at full wind speed, and a fraction would have entered the driver's visibility
-                    zone. The model estimates:</p>
+                <p><span class="tag tag-metric">Metric</span> The monitor panel uses several intuitive visual elements
+                    designed for non-technical audiences:</p>
+                <ul>
+                    <li><strong>SVG Gauge Meters</strong> — Semi-circle arcs showing forward/reverse visibility as a
+                        percentage, color-coded green (GOOD, ≥60%), yellow (MODERATE, 30–60%), or red (POOR, &lt;30%).
+                    </li>
+                    <li><strong>Barrier Protection Score</strong> — A prominent card showing the overall visibility
+                        improvement percentage (e.g., "+52%") compared to a no-barrier baseline.</li>
+                    <li><strong>Shield Comparison Bars</strong> — Green bars (🛡️ With Barriers) side-by-side with red
+                        bars (🚫 Without Barriers), showing how much safer each lane is.</li>
+                </ul>
+                <p>The no-barrier baseline is estimated by tracking particles intercepted by barriers each frame.
+                    Without barriers, these particles would have continued at full wind speed into the driver's
+                    visibility zone. The formula:</p>
                 <div class="formula">extra_blockers = Σ(intercepted_density) × wind_angle_factor × 0.35</div>
-                <p>The green badge (e.g., <strong>+12%</strong>) shows the percentage-point improvement in visibility
-                    provided by the barriers. This makes it easy to compare different barrier configurations — adjust
-                    tree height, density, or distance and immediately see how the improvement changes.</p>
+                <p>This approach lets you adjust any barrier parameter and <strong>immediately see</strong> how the
+                    protection score changes — far more intuitive than reading raw numbers.</p>
             </div>
         </details>
 
@@ -631,7 +643,8 @@
             </summary>
             <div class="answer">
                 <p><span class="tag tag-physics">Physics</span> The default settings are chosen to represent a
-                    <strong>typical winter blizzard in the Saguenay–Lac-Saint-Jean region</strong>:</p>
+                    <strong>typical winter blizzard in the Saguenay–Lac-Saint-Jean region</strong>:
+                </p>
                 <ul>
                     <li><strong>Wind speed: 15 m/s (54 km/h)</strong> — Environment Canada historical data shows
                         Chicoutimi winter storms frequently reach 40–70 km/h sustained winds</li>
@@ -732,7 +745,8 @@
                 <p>The "No Barriers" baseline estimation accounts for wind direction — the
                     <code>wind_angle_factor</code> ensures the comparison is larger for crosswind conditions and smaller
                     for parallel winds. This matches real-world observations that crosswinds are the most dangerous for
-                    snow drift on highways.</p>
+                    snow drift on highways.
+                </p>
             </div>
         </details>
 
@@ -781,18 +795,18 @@
                 <ul>
                     <li><strong>Flat terrain only</strong> — No hills, embankments, or road cuts are modeled. Real
                         terrain features significantly affect wind flow patterns.</li>
-                    <li><strong>No snow accumulation</strong> — Particles that hit the ground simply respawn; the
-                        simulation does not model progressive snow buildup on the road surface.</li>
                     <li><strong>Simplified turbulence</strong> — Uses sinusoidal gust approximation rather than
                         stochastic spectral models (Kaimal, von Kármán).</li>
                     <li><strong>No temperature or moisture effects</strong> — Snow crystal type, humidity, and
                         temperature affect real drift behavior but are not modeled.</li>
-                    <li><strong>Barrier as a simple zone</strong> — Vegetation is modeled as a rectangular
-                        velocity-reduction zone, not as individual tree geometries with complex wake effects.</li>
-                    <li><strong>Baseline estimation is approximate</strong> — The "No Barriers" curve is estimated from
+                    <li><strong>Baseline estimation is approximate</strong> — The barrier protection score is estimated
+                        from
                         intercepted particle statistics, not from a parallel barrier-free simulation.</li>
                     <li><strong>No vehicle aerodynamics</strong> — Passing vehicles create turbulence and snow
                         re-suspension, which is not included.</li>
+                    <li><strong>Capped snow accumulation</strong> — Settled snow is limited to 2,000 particles for
+                        performance;
+                        long-duration progressive drift buildup is not modeled.</li>
                 </ul>
                 <p>Despite these simplifications, the qualitative behavior — that vegetation barriers reduce wind-driven
                     snow reaching the road and improve driver visibility — is consistent with established research and
@@ -823,6 +837,93 @@
                     <li><strong>Community Engagement</strong> — Let residents interact with the tool to understand why
                         road-side tree planting is being proposed and how it benefits winter driving safety.</li>
                 </ul>
+            </div>
+        </details>
+
+        <!-- ═══════ NEW: Tree Model, Accumulation, Desktop ═══════ -->
+        <div class="section-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 10V4M7 10V2M12 14V2M3 14l4 6h10l4-6" />
+            </svg>
+            Tree Model &amp; Desktop Install
+        </div>
+
+        <details class="qa" id="q16">
+            <summary>
+                What tree species is modeled and why?
+                <span class="num">Q16</span>
+            </summary>
+            <div class="answer">
+                <p><span class="tag tag-barrier">Barrier</span> The simulation models <strong>Black Spruce (Picea
+                        mariana)</strong>, the most common boreal conifer in the Chicoutimi / Saguenay–Lac-Saint-Jean
+                    region. Key characteristics:</p>
+                <ul>
+                    <li><strong>Brown cylindrical trunk</strong> — approximately 20% of total height, 12–16 cm radius
+                    </li>
+                    <li><strong>Dark green conical crown</strong> — approximately 85% of total height, starting at ~15%
+                        above ground</li>
+                    <li><strong>Narrow, tapered shape</strong> — the crown narrows toward the top, which is physically
+                        accurate for boreal spruce</li>
+                </ul>
+                <p>The two-part geometry (trunk + crown) means that <strong>changing tree height only stretches the tree
+                        vertically</strong> — the width stays constant, so density is not artificially exaggerated when
+                    you increase height.</p>
+                <p>The cone-shaped collision zone also follows this geometry: the effective blocking width is wider at
+                    the crown base and narrows toward the tip, and the foliage density decreases toward the top. This
+                    matches real conifer structure — lower branches are denser, upper branches are sparser.</p>
+            </div>
+        </details>
+
+        <details class="qa" id="q17">
+            <summary>
+                Do snow particles accumulate on the ground?
+                <span class="num">Q17</span>
+            </summary>
+            <div class="answer">
+                <p><span class="tag tag-physics">Physics</span> Yes. When snow particles are <strong>slowed by a
+                        vegetation barrier</strong> and then reach the ground, they settle in place as persistent white
+                    dots instead of being recycled. This models the real-world phenomenon of <strong>snow deposition on
+                        the lee side of shelterbelts</strong>.</p>
+                <ul>
+                    <li>Only particles that were actually intercepted by a barrier accumulate — free-falling snow simply
+                        recycles</li>
+                    <li>The accumulation pool is capped at <strong>2,000 particles</strong> to maintain smooth
+                        performance</li>
+                    <li>Accumulated snow appears as small white dots near the base of barriers</li>
+                    <li>More snow accumulates on the <strong>windward (upwind) side</strong>, consistent with
+                        shelterbelt research</li>
+                </ul>
+                <p>While this is a simplified representation (no drift shapes or progressive mounding), it provides an
+                    important visual cue that barriers are working — you can literally <strong>see the snow being
+                        caught</strong> before it reaches the road.</p>
+            </div>
+        </details>
+
+        <details class="qa" id="q18">
+            <summary>
+                Can I install SnowSim as a desktop application for offline use?
+                <span class="num">Q18</span>
+            </summary>
+            <div class="answer">
+                <p><span class="tag tag-scope">Scope</span> Yes, SnowSim can be installed and used <strong>completely
+                        offline</strong> in two ways:</p>
+                <ul>
+                    <li><strong>PWA (Progressive Web App)</strong> — Visit the <a href="./"
+                            style="color: var(--blue-400);">live simulation</a> in Chrome, Edge, or Safari, then click
+                        "Install" or "Add to Home Screen". This works on Windows, macOS, Android, and iOS — no app store
+                        needed.</li>
+                    <li><strong>Desktop Installer</strong> — Download pre-built installers from the <a
+                            href="https://github.com/v4-hub/snowsim/releases" target="_blank" rel="noopener"
+                            style="color: var(--blue-400);">GitHub Releases</a> page:
+                        <ul>
+                            <li><code>.dmg</code> for macOS</li>
+                            <li><code>.exe</code> for Windows</li>
+                        </ul>
+                    </li>
+                </ul>
+                <p>Both options include all simulation code and assets — <strong>no internet connection
+                        required</strong> after installation. This is especially useful for field demonstrations,
+                    conference presentations, or stakeholder meetings where network access may be limited.</p>
             </div>
         </details>
 
