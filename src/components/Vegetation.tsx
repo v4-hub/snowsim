@@ -12,12 +12,12 @@ export function Vegetation() {
       const trees = [];
       const spacing = 2 / config.density; // Density 1 = 2m apart, 0.5 = 4m apart
       const numTrees = Math.floor(200 / spacing);
-      
+
       for (let i = 0; i < numTrees; i++) {
         const z = -100 + i * spacing + (Math.random() * 0.5 - 0.25);
         const x = xPos + (Math.random() * 1 - 0.5);
         const height = config.height * (0.8 + Math.random() * 0.4);
-        const radius = height * 0.3;
+        const radius = 1.2 + Math.random() * 0.3; // Fixed width, independent of height
         trees.push({ position: [x, height / 2, z], scale: [radius, height, radius] });
       }
       return trees;
