@@ -63,9 +63,9 @@
     },
     "nsis": {
       "unicode": true,
-      "oneClick": false,
-      "perMachine": true,
-      "allowToChangeInstallationDirectory": true,
+      "oneClick": true,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": false,
       "deleteAppDataOnUninstall": true,
       "uninstallDisplayName": "SnowSim",
       "artifactName": "SnowSim-Setup-${version}.${ext}"
