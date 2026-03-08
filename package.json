@@ -54,11 +54,12 @@
     ],
     "mac": {
       "target": "dmg",
-      "category": "public.app-category.education"
+      "category": "public.app-category.education",
+      "icon": "public/icon.icns"
     },
     "win": {
       "target": "nsis",
-      "icon": "public/snowflake.png"
+      "icon": "public/icon.ico"
     },
     "nsis": {
       "unicode": true,
@@ -67,10 +68,7 @@
       "allowToChangeInstallationDirectory": true,
       "deleteAppDataOnUninstall": true,
       "uninstallDisplayName": "SnowSim",
-      "artifactName": "SnowSim-Setup-${version}.${ext}",
-      "installerIcon": "public/snowflake.png",
-      "uninstallerIcon": "public/snowflake.png",
-      "installerHeaderIcon": "public/snowflake.png"
+      "artifactName": "SnowSim-Setup-${version}.${ext}"
     }
   }
 }
