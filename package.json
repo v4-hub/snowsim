@@ -61,12 +61,16 @@
       "icon": "public/snowflake.png"
     },
     "nsis": {
-      "oneClick": true,
-      "perMachine": false,
-      "allowToChangeInstallationDirectory": false,
+      "unicode": true,
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true,
       "deleteAppDataOnUninstall": true,
       "uninstallDisplayName": "SnowSim",
-      "artifactName": "SnowSim-Setup-${version}.${ext}"
+      "artifactName": "SnowSim-Setup-${version}.${ext}",
+      "installerIcon": "public/snowflake.png",
+      "uninstallerIcon": "public/snowflake.png",
+      "installerHeaderIcon": "public/snowflake.png"
     }
   }
 }
