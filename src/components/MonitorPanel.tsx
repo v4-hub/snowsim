@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useSimulationStore } from '../store';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
-import { ChevronLeft, Activity, Eye, Snowflake, Wind, Shield, ShieldOff } from 'lucide-react';
+import { ChevronLeft, Activity, Eye, Snowflake, Wind, Shield, ShieldOff, AlertTriangle } from 'lucide-react';
+
+// Visibility % → approximate distance (600m max reference for good weather)
+function visibilityDistance(pct: number): string {
+  const dist = Math.round((pct / 100) * 600);
+  if (dist >= 500) return `≈ ${dist}m`;
+  return `≈ ${dist}m`;
+}
 
 // SVG Semi-circle Gauge component
 function Gauge({ value, label, size = 120 }: { value: number; label: string; size?: number }) {
@@ -12,10 +19,24 @@ function Gauge({ value, label, size = 120 }: { value: number; label: string; siz
   const clampedValue = Math.max(0, Math.min(100, value));
   const offset = circumference - (clampedValue / 100) * circumference;
 
-  // Color: green (>70) → yellow (40-70) → red (<40)
-  const color = clampedValue > 70 ? '#34d399' : clampedValue > 40 ? '#fbbf24' : '#f87171';
-  const bgColor = clampedValue > 70 ? 'rgba(52,211,153,0.12)' : clampedValue > 40 ? 'rgba(251,191,36,0.12)' : 'rgba(248,113,113,0.12)';
-  const statusText = clampedValue > 70 ? 'GOOD' : clampedValue > 40 ? 'MODERATE' : 'POOR';
+  // Color: 5-tier system
+  const getColor = (v: number) => {
+    if (v > 85) return '#34d399'; // emerald
+    if (v > 70) return '#4ade80'; // green
+    if (v > 50) return '#fbbf24'; // amber
+    if (v > 30) return '#fb923c'; // orange
+    return '#f87171'; // red
+  };
+  const getStatus = (v: number) => {
+    if (v > 85) return 'EXCELLENT';
+    if (v > 70) return 'GOOD';
+    if (v > 50) return 'MODERATE';
+    if (v > 30) return 'POOR';
+    return 'HAZARDOUS';
+  };
+
+  const color = getColor(clampedValue);
+  const statusText = getStatus(clampedValue);
 
   return (
     <div className="flex flex-col items-center">
@@ -34,15 +55,19 @@ function Gauge({ value, label, size = 120 }: { value: number; label: string; siz
           style={{ transition: 'stroke-dashoffset 0.5s ease, stroke 0.5s ease' }}
         />
         {/* Value text */}
-        <text x={cx} y={cy - 12} textAnchor="middle" fill={color} fontSize="22" fontWeight="700" fontFamily="JetBrains Mono, monospace">
+        <text x={cx} y={cy - 16} textAnchor="middle" fill={color} fontSize="20" fontWeight="700" fontFamily="JetBrains Mono, monospace">
           {clampedValue}%
         </text>
         {/* Status text */}
-        <text x={cx} y={cy + 4} textAnchor="middle" fill={color} fontSize="8" fontWeight="600" letterSpacing="1.2" opacity="0.8">
+        <text x={cx} y={cy - 2} textAnchor="middle" fill={color} fontSize="8" fontWeight="600" letterSpacing="1.2" opacity="0.9">
           {statusText}
         </text>
+        {/* Distance estimate */}
+        <text x={cx} y={cy + 10} textAnchor="middle" fill="#94a3b8" fontSize="8" opacity="0.7">
+          {visibilityDistance(clampedValue)}
+        </text>
       </svg>
-      <span className="text-[11px] text-slate-400 mt-1">{label}</span>
+      <span className="text-[11px] text-slate-400 mt-0.5">{label}</span>
     </div>
   );
 }
@@ -57,11 +82,15 @@ function ComparisonBar({ withBarrier, withoutBarrier, label }: { withBarrier: nu
     <div className="space-y-2">
       <div className="flex justify-between items-center">
         <span className="text-[11px] text-slate-400">{label}</span>
-        {improvement > 0 && (
+        {improvement > 0 ? (
           <span className="text-[11px] font-mono font-semibold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
             +{improvement}% safer
           </span>
-        )}
+        ) : improvement === 0 ? (
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-700/50 text-slate-400 border border-slate-600/30">
+            No difference
+          </span>
+        ) : null}
       </div>
       {/* With Barriers */}
       <div className="flex items-center gap-2">
@@ -218,8 +247,8 @@ export default function MonitorPanel() {
             </div>
           </div>
 
-          {/* Barrier Protection Score */}
-          {avgImprovement > 0 && (
+          {/* Barrier Protection Score — always visible */}
+          {avgImprovement > 0 ? (
             <div className="bg-emerald-500/10 p-3 rounded-lg border border-emerald-500/20 flex items-center gap-3">
               <div className="p-2 bg-emerald-500/20 rounded-lg flex-shrink-0">
                 <Shield className="w-5 h-5 text-emerald-400" />
@@ -227,6 +256,16 @@ export default function MonitorPanel() {
               <div className="flex-1">
                 <div className="text-[10px] text-emerald-300/70 uppercase tracking-wider font-semibold">Barrier Protection</div>
                 <div className="text-xl font-mono font-bold text-emerald-400">+{avgImprovement}% <span className="text-xs font-normal text-emerald-300/60">visibility improvement</span></div>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-amber-500/10 p-3 rounded-lg border border-amber-500/20 flex items-center gap-3">
+              <div className="p-2 bg-amber-500/20 rounded-lg flex-shrink-0">
+                <AlertTriangle className="w-5 h-5 text-amber-400" />
+              </div>
+              <div className="flex-1">
+                <div className="text-[10px] text-amber-300/70 uppercase tracking-wider font-semibold">No Barrier Advantage</div>
+                <div className="text-xs text-amber-300/60">Enable vegetation barriers to improve visibility</div>
               </div>
             </div>
           )}

@@ -57,7 +57,16 @@
       "category": "public.app-category.education"
     },
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "icon": "public/snowflake.png"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": false,
+      "deleteAppDataOnUninstall": true,
+      "uninstallDisplayName": "SnowSim",
+      "artifactName": "SnowSim-Setup-${version}.${ext}"
     }
   }
 }

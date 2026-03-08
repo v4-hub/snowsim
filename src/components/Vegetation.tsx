@@ -34,7 +34,7 @@ export function Vegetation() {
         // Crown: ~85% of total height, starts at ~15% up (overlaps trunk top)
         const crownStart = totalHeight * 0.15;
         const crownHeight = totalHeight * 0.85;
-        const crownRadius = 1.0 + Math.random() * 0.4; // 1.0-1.4m base radius
+        const crownRadius = totalHeight * 0.18 * (0.85 + Math.random() * 0.3); // Allometric: width scales with height
 
         allTrees.push({
           position: [x, 0, z],
