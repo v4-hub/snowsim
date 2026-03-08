@@ -26,7 +26,7 @@ jobs:
           draft: false
 
   build-win:
-    runs-on: windows-latest
+    runs-on: macos-latest   # Cross-compile Windows exe on macOS runner (faster, avoids timeout)
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -34,6 +34,8 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
+        env:
+          ELECTRON_MIRROR: https://npmmirror.com/mirrors/electron/
       - run: npm run build:electron
       - run: npx electron-builder --win --publish never
       - uses: softprops/action-gh-release@v2
