@@ -133,7 +133,8 @@ export function SnowParticles() {
     let snowOnRoadCount = 0;
     let forwardBlockers = 0;
     let reverseBlockers = 0;
-    let barrierInterceptedDensitySum = 0;
+    let capturedByBarrier = 0;
+    let particlesInBarrierZone = 0; // All particles currently inside any barrier X-range
 
     const zRef = 10;
 
@@ -168,7 +169,6 @@ export function SnowParticles() {
       const hitDensity = checkTreeCollision(px, py, pz, allTrees);
 
       if (hitDensity > 0) {
-        barrierInterceptedDensitySum += hitDensity;
         // Quadratic density scaling: porosity effects are nonlinear
         // density 0.2 → captureP = 0.04 (4%)  → sparse, most pass through
         // density 0.5 → captureP = 0.25 (25%) → moderate protection
@@ -178,6 +178,7 @@ export function SnowParticles() {
           // Captured by branches: settle at barrier base
           py = -0.1; // Force ground → respawn upwind
           wasSlowed[i] = 1;
+          capturedByBarrier++;
         } else {
           // Passes through with density-dependent speed reduction
           const velFactor = 1 - captureP * 0.5;
@@ -196,6 +197,18 @@ export function SnowParticles() {
       if (px > -5 && px < 5 && py < 5) snowOnRoadCount++;
       if (px > 0 && px < 5 && py > 0 && py < 3 && pz < 0 && pz > -40) forwardBlockers++;
       if (px > -5 && px < 0 && py > 0 && py < 3 && pz > 0 && pz < 40) reverseBlockers++;
+
+      // Count particles currently inside any barrier zone (barrier X ± crownR, y < treeH)
+      // These particles are being influenced (captured/slowed/deflected) by the barrier
+      // Without barriers, they'd all pass through to become road-level visibility blockers
+      if (allTrees.length > 0 && py > 0 && py < 15) {
+        for (const tree of allTrees) {
+          if (Math.abs(px - tree.x) < tree.crownR + 1 && Math.abs(pz - tree.z) < 5 && py < tree.h) {
+            particlesInBarrierZone++;
+            break; // Count each particle only once
+          }
+        }
+      }
 
       // Check if particle hit ground or out of bounds
       if (py < 0 || px < -50 || px > 50 || pz < -50 || pz > 50) {
@@ -269,17 +282,16 @@ export function SnowParticles() {
       const rVis = Math.max(0, 100 - (reverseBlockers / maxBlockers) * 100);
 
       // Baseline: estimate what visibility WOULD BE without any barriers
-      // Captured particles would have continued into both road lanes
+      // All particles in the barrier zone represent snow being captured/deflected/slowed
+      // Without barriers, these particles would freely cross the road
       const windAngleFactor = Math.abs(Math.cos(windRad));
-      const windAngleSide = Math.abs(Math.sin(windRad));
-      // Crosswind (0°) drives most particles across both lanes equally
-      // Parallel wind (90°) pushes along the road, affecting forward/reverse differently
       const crossFactor = Math.max(0.3, windAngleFactor);
-      const extraBlockers = barrierInterceptedDensitySum * 0.7 * crossFactor;
-      // Both lanes benefit from upwind barrier: wind shadow covers full road width
-      // Forward (far lane) gets ~60% benefit, Reverse (near lane) gets ~70% benefit
-      const bfVis = Math.max(0, 100 - ((forwardBlockers + extraBlockers * 0.6) / maxBlockers) * 100);
-      const brVis = Math.max(0, 100 - ((reverseBlockers + extraBlockers * 0.7) / maxBlockers) * 100);
+      // particlesInBarrierZone counts all particles in the barrier influence area
+      // Without barriers, a large fraction would become road-level visibility blockers
+      const extraBlockers = (capturedByBarrier + particlesInBarrierZone * 0.3) * crossFactor;
+      // Forward (far lane) gets ~50% of extra, Reverse (near lane) gets ~60%
+      const bfVis = Math.max(0, 100 - ((forwardBlockers + extraBlockers * 0.50) / maxBlockers) * 100);
+      const brVis = Math.max(0, 100 - ((reverseBlockers + extraBlockers * 0.60) / maxBlockers) * 100);
 
       useSimulationStore.getState().setMetrics({
         snowOnRoad: snowOnRoadCount,
