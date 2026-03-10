@@ -88,6 +88,12 @@ GitHub Actions will build `.dmg` (Mac) and `.exe` (Windows) and publish them as 
 | Icons | Lucide React |
 | Desktop | Electron + electron-builder |
 
+## Contact
+
+- **Prof. Sergio Rossi** — [sergio.rossi@uqac.ca](mailto:sergio.rossi@uqac.ca)
+  Département des Sciences Fondamentales, Université du Québec à Chicoutimi (UQAC)
+- **Shaoxiong Yuan** — [shaoxiong.yuan1@uqac.ca](mailto:shaoxiong.yuan1@uqac.ca)
+
 ## License
 
 MIT
