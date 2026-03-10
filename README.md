@@ -90,9 +90,9 @@ GitHub Actions will build `.dmg` (Mac) and `.exe` (Windows) and publish them as 
 
 ## Contact
 
-- **Prof. Sergio Rossi** — [sergio.rossi@uqac.ca](mailto:sergio.rossi@uqac.ca)
+- **Prof. Sergio Rossi** — [srossi@uqac.ca](mailto:srossi@uqac.ca)
   Département des Sciences Fondamentales, Université du Québec à Chicoutimi (UQAC)
-- **Shaoxiong Yuan** — [shaoxiong.yuan1@uqac.ca](mailto:shaoxiong.yuan1@uqac.ca)
+- **Shaoxiong Yuan** — [yuanshx@gmail.com](mailto:yuanshx@gmail.com)
 
 ## License
 
